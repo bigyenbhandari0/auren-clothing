@@ -41,7 +41,7 @@ export function Thumb({ image, product, className }: { image: string; product: P
 export function LookExplorer() {
   const reduce = useReducedMotion();
   const dur = reduce ? 0 : DURATION;
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(2);
   const [focused, setFocused] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [sizes, setSizes] = useState<Record<string, string>>({});
@@ -234,7 +234,7 @@ export function LookExplorer() {
                       height={900}
                       draggable={false}
                       loading={Math.abs(i - active) <= 1 ? "eager" : "lazy"}
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-contain mix-blend-multiply"
                     />
                   </button>
                   {isActive && (
