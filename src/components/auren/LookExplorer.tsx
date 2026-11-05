@@ -1,7 +1,8 @@
+import { Link } from "@tanstack/react-router";
 import { Portrait, portraitStyle } from "./Portrait";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { toast } from "sonner";
 import { LOOKS, PORTRAIT_RATIO, formatPrice, type Look, type Product } from "@/lib/looks";
 import { useBag, type BagItem } from "@/lib/bag";
@@ -16,29 +17,50 @@ function useStageSize() {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => { if (e) setSize({ w: e.contentRect.width, h: e.contentRect.height }); });
+    const ro = new ResizeObserver(([e]) => {
+      if (e) setSize({ w: e.contentRect.width, h: e.contentRect.height });
+    });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
   return [ref, size] as const;
 }
 
-export function Thumb({ image, product, className }: { image: string; product: Product; className?: string }) {
+export function Thumb({
+  image,
+  product,
+  className,
+}: {
+  image: string;
+  product: Product;
+  className?: string;
+}) {
   const { x, y, zoom } = product.thumb;
   return (
     <div className={cn("relative h-16 w-14 shrink-0 overflow-hidden bg-secondary", className)}>
-      <div aria-hidden className="absolute"
-        style={{ ...portraitStyle(image), aspectRatio: PORTRAIT_RATIO, width: `${zoom * 100}%`, left: "50%", top: "50%", transform: `translate(-${x}%, -${y}%)` }}
+      <div
+        aria-hidden
+        className="absolute"
+        style={{
+          ...portraitStyle(image),
+          aspectRatio: PORTRAIT_RATIO,
+          width: `${zoom * 100}%`,
+          left: "50%",
+          top: "50%",
+          transform: `translate(-${x}%, -${y}%)`,
+        }}
       />
     </div>
   );
 }
 
-export function LookExplorer() {
+export function LookExplorer({ entered = true }: { entered?: boolean }) {
   const reduce = useReducedMotion();
   const dur = reduce ? 0 : DURATION;
   const [active, setActive] = useState(2);
+  const previousActive = useRef(2);
   const [focused, setFocused] = useState(false);
+  const [autoplay, setAutoplay] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
   const [sizes, setSizes] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +71,12 @@ export function LookExplorer() {
   const look = LOOKS[active]!;
 
   const lockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (lockTimer.current) clearTimeout(lockTimer.current); }, []);
+  useEffect(
+    () => () => {
+      if (lockTimer.current) clearTimeout(lockTimer.current);
+    },
+    [],
+  );
   const lock = () => {
     busy.current = true;
     if (lockTimer.current) clearTimeout(lockTimer.current);
@@ -59,9 +86,10 @@ export function LookExplorer() {
   const go = useCallback(
     (to: number) => {
       if (busy.current || focused) return;
-      const n = Math.max(0, Math.min(LOOKS.length - 1, to));
+      const n = (to + LOOKS.length) % LOOKS.length;
       if (n === active) return;
       lock();
+      previousActive.current = active;
       setActive(n);
       setSelected(null);
       setError(null);
@@ -70,9 +98,18 @@ export function LookExplorer() {
     [active, focused, dur],
   );
 
+  useEffect(() => {
+    if (!entered || !autoplay || focused || bag.open || reduce) return;
+    const timer = window.setInterval(() => {
+      if (!document.hidden) go(active + 1);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [entered, autoplay, focused, bag.open, reduce, go, active]);
+
   const openFocus = () => {
     if (busy.current) return;
     lock();
+    setAutoplay(false);
     setFocused(true);
   };
   const closeFocus = () => {
@@ -108,14 +145,16 @@ export function LookExplorer() {
 
   useEffect(() => {
     if (error && selected) {
-      document.getElementById(`piece-${selected}`)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+      document
+        .getElementById(`piece-${selected}`)
+        ?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
     }
   }, [error, selected, reduce]);
 
   const isMobile = stage.w > 0 && stage.w < 640;
-  const ph = Math.max(0, stage.h - 16);
+  const ph = Math.max(0, stage.h - 44);
   const pw = ph * PORTRAIT_RATIO;
-  const spacing = pw * (isMobile ? 1.08 : 1.12);
+  const spacing = pw * (isMobile ? 1.3 : 1.18);
 
   const toItem = (p: Product, size: string): BagItem => ({
     productId: p.id,
@@ -153,7 +192,10 @@ export function LookExplorer() {
   };
 
   return (
-    <main id="looks" className="grid min-h-0 flex-1 grid-cols-1 gap-y-6 px-5 pb-6 lg:grid-cols-[76fr_24fr] lg:gap-x-10 lg:px-10">
+    <main
+      id="looks"
+      className="look-explorer grid min-h-0 flex-1 grid-cols-1 gap-y-6 px-5 pb-6 lg:grid-cols-[76fr_24fr] lg:gap-x-10 lg:px-10"
+    >
       <section className="flex min-w-0 flex-col" aria-label="Look explorer">
         <div className="h-20 lg:h-24">
           <AnimatePresence mode="wait" initial={false}>
@@ -177,8 +219,12 @@ export function LookExplorer() {
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: dur * 0.5, ease: EASE }}
               >
-                <h1 className="text-3xl font-normal tracking-tight lg:text-[40px] lg:leading-tight">Try the Look.</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Select a model to explore each piece of the outfit.</p>
+                <h1 className="text-3xl font-normal tracking-tight lg:text-[40px] lg:leading-tight">
+                  Try the Look.
+                </h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Swipe through the studio. Select a model. Make it your own.
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -191,8 +237,12 @@ export function LookExplorer() {
             if (focused || e.button !== 0) return;
             drag.current = { x: e.clientX, moved: false };
           }}
-          onPointerCancel={() => { drag.current = null; }}
-          onPointerLeave={(e) => { if (e.pointerType === "mouse") drag.current = null; }}
+          onPointerCancel={() => {
+            drag.current = null;
+          }}
+          onPointerLeave={(e) => {
+            if (e.pointerType === "mouse") drag.current = null;
+          }}
           onPointerMove={(e) => {
             if (drag.current && Math.abs(e.clientX - drag.current.x) > 8) drag.current.moved = true;
           }}
@@ -208,38 +258,76 @@ export function LookExplorer() {
           {stage.w > 0 &&
             LOOKS.map((l, i) => {
               const isActive = i === active;
-              const x = stage.w / 2 - pw / 2 + (i - active) * spacing;
+              const offset = ((i - active + LOOKS.length + 2) % LOOKS.length) - 2;
+              const previousOffset =
+                ((i - previousActive.current + LOOKS.length + 2) % LOOKS.length) - 2;
+              const wrapping = !focused && Math.abs(offset - previousOffset) > 2;
+              const x = stage.w / 2 - pw / 2 + offset * spacing;
               return (
                 <motion.div
                   key={l.id}
                   className="absolute top-2 left-0"
-                  style={{ width: pw, height: ph, zIndex: isActive ? 2 : 1 }}
-                  initial={false}
+                  style={{
+                    width: pw,
+                    height: ph,
+                    zIndex: isActive ? 2 : 1,
+                    transformOrigin: "50% 100%",
+                  }}
+                  initial={{ y: 100, opacity: 0 }}
                   animate={{
-                    x,
-                    opacity: focused && !isActive ? 0 : 1,
-                    scale: 1,
+                    x: focused && !isActive ? x + (offset < 0 ? -stage.w : stage.w) : x,
+                    y: entered ? (isActive ? 0 : 18) : 100,
+                    opacity:
+                      wrapping && entered
+                        ? [0, 0, 0.72]
+                        : entered
+                          ? focused && !isActive
+                            ? 0
+                            : isActive
+                              ? 1
+                              : 0.72
+                          : 0,
+                    scale: focused && isActive ? 1.045 : isActive ? 1 : 0.9,
                   }}
                   transition={{
-                    x: { duration: dur, ease: EASE },
+                    x: { duration: wrapping ? 0 : dur, ease: EASE },
+                    y: { duration: dur, ease: EASE, delay: entered ? i * 0.055 : 0 },
                     scale: { duration: dur, ease: EASE, delay: focused ? dur * 0.25 : 0 },
-                    opacity: { duration: dur * 0.5, ease: EASE, delay: focused ? 0 : dur * 0.35 },
+                    opacity: {
+                      duration: wrapping ? dur : dur * 0.5,
+                      ease: EASE,
+                      ...(wrapping ? { times: [0, 0.65, 1] } : {}),
+                      delay: wrapping || focused ? 0 : dur * 0.35,
+                    },
                   }}
                 >
                   <button
                     type="button"
                     tabIndex={focused && !isActive ? -1 : 0}
-                    aria-label={isActive ? (focused ? `${l.name} look` : `Open ${l.name} look`) : `Show ${l.name} look`}
+                    aria-label={
+                      isActive
+                        ? focused
+                          ? `${l.name} look`
+                          : `Open ${l.name} look`
+                        : `Show ${l.name} look`
+                    }
                     disabled={focused}
                     onClick={() => {
                       if (drag.current?.moved) return;
                       if (isActive) openFocus();
                       else go(i);
                     }}
-                    className={cn("block h-full w-full", !focused && "cursor-pointer", focused && !isActive && "pointer-events-none")}
+                    className={cn(
+                      "block h-full w-full",
+                      !focused && "cursor-pointer",
+                      focused && !isActive && "pointer-events-none",
+                    )}
                   >
-                    <Portrait image={l.image} alt={`Model wearing the ${l.name} look`}
-                      className="h-full w-full mix-blend-multiply" />
+                    <Portrait
+                      image={l.image}
+                      alt={`Model wearing the ${l.name} look`}
+                      className="h-full w-full mix-blend-multiply"
+                    />
                   </button>
                   {isActive && (
                     <Hotspots
@@ -255,27 +343,49 @@ export function LookExplorer() {
             })}
         </div>
 
-        <div className={cn("mt-4 flex items-center justify-center gap-6 transition-opacity", focused && "pointer-events-none opacity-0")}>
+        <div
+          className={cn(
+            "mt-4 flex items-center justify-center gap-6 transition-opacity",
+            focused && "pointer-events-none opacity-0",
+          )}
+        >
           <button
             onClick={() => go(active - 1)}
-            disabled={focused || active === 0}
+            disabled={focused}
             aria-label="Previous look"
             className="grid h-10 w-10 place-items-center rounded-full border border-border hover:border-foreground disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="min-w-14 text-center text-xs tabular-nums text-muted-foreground" aria-live="polite">
+          <span
+            className="min-w-14 text-center text-xs tabular-nums text-muted-foreground"
+            aria-live="polite"
+          >
             {String(active + 1).padStart(2, "0")} / {String(LOOKS.length).padStart(2, "0")}
           </span>
           <button
             onClick={() => go(active + 1)}
-            disabled={focused || active === LOOKS.length - 1}
+            disabled={focused}
             aria-label="Next look"
             className="grid h-10 w-10 place-items-center rounded-full border border-border hover:border-foreground disabled:opacity-30"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
+          <button
+            onClick={() => setAutoplay(!autoplay)}
+            disabled={focused}
+            aria-label={autoplay ? "Pause automatic looks" : "Play automatic looks"}
+            className="grid h-10 w-10 place-items-center rounded-full border border-border disabled:opacity-30"
+          >
+            {autoplay ? <Pause size={13} /> : <Play size={13} />}
+          </button>
         </div>
+        <p className="look-caption">
+          <span>
+            0{active + 1} / {look.name}
+          </span>
+          <span>{focused ? "Explore the hotspots" : "Drag to explore · Click to discover"}</span>
+        </p>
       </section>
 
       <OutfitRail
@@ -323,7 +433,11 @@ function Hotspots({
               className="absolute"
               style={{ left: `${p.hotspot.x}%`, top: `${p.hotspot.y}%`, zIndex: on ? 5 : 3 }}
               initial={{ opacity: 0, scale: 0.6 }}
-              animate={{ opacity: 1, scale: 1, transition: { delay: delay + i * 0.06, duration: 0.3 } }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                transition: { delay: delay + i * 0.06, duration: 0.3 },
+              }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
             >
               <button
@@ -396,11 +510,21 @@ function OutfitRail({
           transition={{ duration: 0.3, ease: EASE }}
           className="flex-1"
         >
-          {look.products.map((p) => {
+          {look.products.map((p, index) => {
             const on = selected === p.id;
             const size = p.sizes.length === 1 ? p.sizes[0] : sizes[p.id];
             return (
-              <li key={p.id} id={`piece-${p.id}`} className={cn("border-b border-border py-3 transition-colors", on && "bg-secondary/70")}>
+              <motion.li
+                initial={{ opacity: 0, x: 28 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.55, delay: index * 0.09, ease: EASE }}
+                key={p.id}
+                id={`piece-${p.id}`}
+                className={cn(
+                  "border-b border-border py-3 transition-colors",
+                  on && "bg-secondary/70",
+                )}
+              >
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -428,7 +552,11 @@ function OutfitRail({
                   </button>
                 </div>
                 {on && p.sizes.length > 1 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label={`Size for ${p.name}`}>
+                  <div
+                    className="mt-3 flex flex-wrap gap-1.5"
+                    role="radiogroup"
+                    aria-label={`Size for ${p.name}`}
+                  >
                     {p.sizes.map((s) => (
                       <button
                         key={s}
@@ -437,7 +565,9 @@ function OutfitRail({
                         onClick={() => onSize(p.id, s)}
                         className={cn(
                           "h-11 min-w-11 border px-2 text-xs",
-                          size === s ? "border-foreground bg-foreground text-primary-foreground" : "border-border hover:border-foreground",
+                          size === s
+                            ? "border-foreground bg-foreground text-primary-foreground"
+                            : "border-border hover:border-foreground",
                         )}
                       >
                         {s}
@@ -445,7 +575,14 @@ function OutfitRail({
                     ))}
                   </div>
                 )}
-              </li>
+                <Link
+                  to="/products/$productId"
+                  params={{ productId: p.id }}
+                  className="piece-detail-link"
+                >
+                  View piece <ArrowUpRight size={11} />
+                </Link>
+              </motion.li>
             );
           })}
         </motion.ul>

@@ -10,6 +10,9 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
+import { BagProvider } from "@/lib/bag";
+import { MotionConfig } from "framer-motion";
+
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -120,8 +123,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      {/* Required: nested routes render here. Removing <MotionConfig reducedMotion="user"><BagProvider><Outlet /></BagProvider></MotionConfig> breaks all child routes. */}
+      <MotionConfig reducedMotion="user">
+        <BagProvider>
+          <Outlet />
+        </BagProvider>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

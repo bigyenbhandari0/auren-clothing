@@ -12,13 +12,27 @@ export function BrandIntro({ onComplete }: { onComplete: () => void }) {
   const [visible, setVisible] = useState(true);
   useEffect(() => {
     try {
-      if (sessionStorage.getItem("auren-intro-seen")) setVisible(false);
-    } catch { /* Session storage is optional. */ }
-    const timer = window.setTimeout(() => setVisible(false), reduce ? 350 : 2900);
+      if (sessionStorage.getItem("auren-intro-seen-v2")) setVisible(false);
+    } catch {
+      /* Session storage is optional. */
+    }
+    const timer = window.setTimeout(() => setVisible(false), reduce ? 350 : 3300);
     return () => clearTimeout(timer);
   }, [reduce]);
+  useEffect(() => {
+    if (!visible) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [visible]);
   const finish = () => {
-    try { sessionStorage.setItem("auren-intro-seen", "1"); } catch { /* optional */ }
+    try {
+      sessionStorage.setItem("auren-intro-seen-v2", "1");
+    } catch {
+      /* optional */
+    }
     onComplete();
   };
   return (
@@ -28,8 +42,8 @@ export function BrandIntro({ onComplete }: { onComplete: () => void }) {
           key="intro"
           aria-label="Welcome to AUREN"
           className="brand-intro fixed inset-0 z-[100] flex flex-col overflow-hidden bg-background px-6 py-6 sm:px-10"
-          initial={false}
-          exit={{ opacity: 0, y: reduce ? 0 : "-4%" }}
+          initial={{ clipPath: "inset(0 0 0% 0)" }}
+          exit={{ clipPath: reduce ? "inset(0 0 100% 0)" : "inset(0 0 100% 0)" }}
           transition={{ duration: reduce ? 0.1 : 0.65, ease }}
         >
           <div className="flex justify-between text-[10px] uppercase tracking-[0.2em]">
@@ -41,28 +55,60 @@ export function BrandIntro({ onComplete }: { onComplete: () => void }) {
           <div className="flex flex-1 flex-col items-center justify-center gap-8">
             <div className="flex overflow-hidden" aria-label="AUREN">
               {"AUREN".split("").map((letter, i) => (
-                <motion.span key={i} aria-hidden className="text-[clamp(64px,17vw,220px)] font-medium leading-none tracking-[-0.07em] last:pr-[0.07em]"
-                  initial={{ y: reduce ? 0 : "110%", opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: reduce ? 0 : 0.8, delay: reduce ? 0 : 0.12 + i * 0.08, ease }}>
+                <motion.span
+                  key={i}
+                  aria-hidden
+                  className="text-[clamp(64px,17vw,220px)] font-medium leading-none tracking-[-0.07em] last:pr-[0.07em]"
+                  initial={{ y: reduce ? 0 : "110%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{
+                    duration: reduce ? 0 : 0.8,
+                    delay: reduce ? 0 : 0.12 + i * 0.08,
+                    ease,
+                  }}
+                >
                   {letter}
                 </motion.span>
               ))}
             </div>
-            <div className="flex h-[clamp(110px,22svh,210px)] justify-center gap-2 sm:gap-4" aria-hidden>
+            <div
+              className="flex h-[clamp(150px,32svh,290px)] justify-center gap-2 sm:gap-4"
+              aria-hidden
+            >
               {LOOKS.map((look, i) => (
-                <motion.div key={look.id} className="aspect-[0.3] overflow-hidden"
-                  initial={{ opacity: 0, y: reduce ? 0 : 20 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: reduce ? 0 : 0.55 + i * 0.07, ease }}>
-                  <Portrait image={look.image} alt="" className="h-full w-full mix-blend-multiply" />
+                <motion.div
+                  key={look.id}
+                  className="aspect-[0.3] overflow-hidden"
+                  initial={{ opacity: 0, y: reduce ? 0 : 120, rotate: reduce ? 0 : (i - 2) * 4 }}
+                  animate={{ opacity: 1, y: 0, rotate: 0 }}
+                  transition={{ duration: 1.1, delay: reduce ? 0 : 0.55 + i * 0.09, ease }}
+                >
+                  <Portrait
+                    image={look.image}
+                    alt=""
+                    className="h-full w-full mix-blend-multiply"
+                  />
                 </motion.div>
               ))}
             </div>
-            <motion.p className="text-[10px] uppercase tracking-[0.3em]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: reduce ? 0 : 1.2 }}>
+            <motion.p
+              className="text-[10px] uppercase tracking-[0.3em]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: reduce ? 0 : 1.2 }}
+            >
               Five looks. Your perspective.
             </motion.p>
           </div>
           <div className="flex items-center justify-between border-t border-border pt-4 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-            <span>Everyday forms / considered details</span><span>01 — 05</span>
+            <motion.span
+              className="intro-progress"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 3, ease: "linear" }}
+            />
+            <span>Everyday forms / considered details</span>
+            <span>01 — 05</span>
           </div>
         </motion.section>
       )}
