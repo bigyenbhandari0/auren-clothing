@@ -1,23 +1,47 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Toaster } from "@/components/ui/sonner";
+import { BagProvider, useBag } from "@/lib/bag";
+import { LookExplorer } from "@/components/auren/LookExplorer";
+import { BagModal } from "@/components/auren/BagModal";
 
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "AUREN — Try the Look" },
+      { name: "description", content: "Explore five photographed AUREN streetwear looks and shop each piece." },
+      { property: "og:title", content: "AUREN — Try the Look" },
+      { property: "og:description", content: "Explore five photographed AUREN streetwear looks and shop each piece." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+function Header() {
+  const bag = useBag();
+  return (
+    <header className="flex h-14 shrink-0 items-center justify-between px-5 lg:px-10">
+      <span className="text-sm font-bold tracking-[0.2em]">AUREN</span>
+      <nav className="flex items-center gap-6 text-xs">
+        <span className="hidden sm:inline">Looks</span>
+        <button onClick={() => bag.setOpen(true)} className="hover:opacity-60" aria-label={`Shopping bag, ${bag.count} items`}>
+          Bag ({bag.count})
+        </button>
+      </nav>
+    </header>
+  );
+}
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <BagProvider>
+      <div className="flex min-h-svh flex-col overflow-x-hidden bg-background">
+        <Header />
+        <LookExplorer />
+        <BagModal />
+        <Toaster position="bottom-center" />
+      </div>
+    </BagProvider>
   );
 }
