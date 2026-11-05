@@ -147,3 +147,22 @@
     -webkit-font-smoothing: antialiased;
   }
 }
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  button:not(:disabled), a { cursor: pointer; }
+  button:disabled { cursor: default; }
+  :focus-visible { outline: 2px solid var(--foreground); outline-offset: 4px; }
+  ::selection { background: var(--foreground); color: var(--background); }
+}
+
+@media (min-width: 1024px) {
+  .outfit-rail { border-left: 1px solid var(--border); padding-left: 24px; }
+}
+@media (max-width: 1023px) {
+  .outfit-rail { border-top: 1px solid var(--border); padding-top: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

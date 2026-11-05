@@ -1,3 +1,4 @@
+import { Portrait, portraitStyle } from "./Portrait";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
@@ -15,7 +16,7 @@ function useStageSize() {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setSize({ w: e.contentRect.width, h: e.contentRect.height }));
+    const ro = new ResizeObserver(([e]) => { if (e) setSize({ w: e.contentRect.width, h: e.contentRect.height }); });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -26,13 +27,8 @@ export function Thumb({ image, product, className }: { image: string; product: P
   const { x, y, zoom } = product.thumb;
   return (
     <div className={cn("relative h-16 w-14 shrink-0 overflow-hidden bg-secondary", className)}>
-      <img
-        src={image}
-        alt=""
-        aria-hidden
-        draggable={false}
-        className="absolute max-w-none"
-        style={{ width: `${zoom * 100}%`, left: "50%", top: "50%", transform: `translate(-${x}%, -${y * 1}%)` }}
+      <div aria-hidden className="absolute"
+        style={{ ...portraitStyle(image), aspectRatio: PORTRAIT_RATIO, width: `${zoom * 100}%`, left: "50%", top: "50%", transform: `translate(-${x}%, -${y}%)` }}
       />
     </div>
   );
@@ -50,11 +46,14 @@ export function LookExplorer() {
   const busy = useRef(false);
   const drag = useRef<{ x: number; moved: boolean } | null>(null);
   const bag = useBag();
-  const look = LOOKS[active];
+  const look = LOOKS[active]!;
 
+  const lockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (lockTimer.current) clearTimeout(lockTimer.current); }, []);
   const lock = () => {
     busy.current = true;
-    window.setTimeout(() => (busy.current = false), dur * 1000);
+    if (lockTimer.current) clearTimeout(lockTimer.current);
+    lockTimer.current = setTimeout(() => (busy.current = false), dur * 1000);
   };
 
   const go = useCallback(
@@ -87,7 +86,8 @@ export function LookExplorer() {
     const onKey = (e: KeyboardEvent) => {
       if (bag.open) return;
       const t = e.target as HTMLElement;
-      if (t && ["INPUT", "TEXTAREA"].includes(t.tagName)) return;
+      if (t?.closest("input, textarea, select, [role=radiogroup], [contenteditable=true]")) return;
+      if (["ArrowLeft", "ArrowRight"].includes(e.key)) e.preventDefault();
       if (!focused && e.key === "ArrowRight") go(active + 1);
       if (!focused && e.key === "ArrowLeft") go(active - 1);
       if (e.key === "Escape" && focused) {
@@ -106,8 +106,14 @@ export function LookExplorer() {
     });
   }, [active]);
 
+  useEffect(() => {
+    if (error && selected) {
+      document.getElementById(`piece-${selected}`)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+    }
+  }, [error, selected, reduce]);
+
   const isMobile = stage.w > 0 && stage.w < 640;
-  const ph = stage.h;
+  const ph = Math.max(0, stage.h - 16);
   const pw = ph * PORTRAIT_RATIO;
   const spacing = pw * (isMobile ? 1.08 : 1.12);
 
@@ -137,7 +143,7 @@ export function LookExplorer() {
   const addLook = () => {
     const missing = look.products.filter((p) => !sizeOf(p));
     if (missing.length) {
-      setSelected(missing[0].id);
+      setSelected(missing[0]!.id);
       setError(`Choose a size for: ${missing.map((m) => m.name).join(", ")}.`);
       return;
     }
@@ -147,7 +153,7 @@ export function LookExplorer() {
   };
 
   return (
-    <main className="grid min-h-0 flex-1 grid-cols-1 gap-y-6 px-5 pb-6 lg:grid-cols-[76fr_24fr] lg:gap-x-10 lg:px-10">
+    <main id="looks" className="grid min-h-0 flex-1 grid-cols-1 gap-y-6 px-5 pb-6 lg:grid-cols-[76fr_24fr] lg:gap-x-10 lg:px-10">
       <section className="flex min-w-0 flex-col" aria-label="Look explorer">
         <div className="h-20 lg:h-24">
           <AnimatePresence mode="wait" initial={false}>
@@ -180,8 +186,13 @@ export function LookExplorer() {
 
         <div
           ref={stageRef}
-          className="relative h-[58svh] min-h-[380px] touch-pan-y select-none overflow-hidden lg:h-[calc(100svh-260px)] lg:min-h-[460px]"
-          onPointerDown={(e) => (drag.current = { x: e.clientX, moved: false })}
+          className="relative h-[52svh] min-h-[300px] touch-pan-y select-none overflow-hidden lg:h-[calc(100svh-260px)] lg:min-h-[320px]"
+          onPointerDown={(e) => {
+            if (focused || e.button !== 0) return;
+            drag.current = { x: e.clientX, moved: false };
+          }}
+          onPointerCancel={() => { drag.current = null; }}
+          onPointerLeave={(e) => { if (e.pointerType === "mouse") drag.current = null; }}
           onPointerMove={(e) => {
             if (drag.current && Math.abs(e.clientX - drag.current.x) > 8) drag.current.moved = true;
           }}
@@ -201,13 +212,13 @@ export function LookExplorer() {
               return (
                 <motion.div
                   key={l.id}
-                  className="absolute top-0 left-0"
+                  className="absolute top-2 left-0"
                   style={{ width: pw, height: ph, zIndex: isActive ? 2 : 1 }}
                   initial={false}
                   animate={{
                     x,
                     opacity: focused && !isActive ? 0 : 1,
-                    scale: focused && isActive ? 1.03 : 1,
+                    scale: 1,
                   }}
                   transition={{
                     x: { duration: dur, ease: EASE },
@@ -227,15 +238,8 @@ export function LookExplorer() {
                     }}
                     className={cn("block h-full w-full", !focused && "cursor-pointer", focused && !isActive && "pointer-events-none")}
                   >
-                    <img
-                      src={l.image}
-                      alt={`Model wearing the ${l.name} look`}
-                      width={310}
-                      height={900}
-                      draggable={false}
-                      loading={Math.abs(i - active) <= 1 ? "eager" : "lazy"}
-                      className="h-full w-full object-contain mix-blend-multiply"
-                    />
+                    <Portrait image={l.image} alt={`Model wearing the ${l.name} look`}
+                      className="h-full w-full mix-blend-multiply" />
                   </button>
                   {isActive && (
                     <Hotspots
@@ -254,7 +258,7 @@ export function LookExplorer() {
         <div className={cn("mt-4 flex items-center justify-center gap-6 transition-opacity", focused && "pointer-events-none opacity-0")}>
           <button
             onClick={() => go(active - 1)}
-            disabled={active === 0}
+            disabled={focused || active === 0}
             aria-label="Previous look"
             className="grid h-10 w-10 place-items-center rounded-full border border-border hover:border-foreground disabled:opacity-30"
           >
@@ -265,7 +269,7 @@ export function LookExplorer() {
           </span>
           <button
             onClick={() => go(active + 1)}
-            disabled={active === LOOKS.length - 1}
+            disabled={focused || active === LOOKS.length - 1}
             aria-label="Next look"
             className="grid h-10 w-10 place-items-center rounded-full border border-border hover:border-foreground disabled:opacity-30"
           >
@@ -342,7 +346,7 @@ function Hotspots({
                 <div
                   role="tooltip"
                   className={cn(
-                    "absolute top-0 -translate-y-1/2 whitespace-nowrap bg-card px-3 py-2 text-xs shadow-sm",
+                    "absolute top-0 -translate-y-1/2 w-max max-w-[150px] bg-card px-3 py-2 text-xs shadow-sm",
                     left ? "right-5" : "left-5",
                   )}
                 >
@@ -378,7 +382,7 @@ function OutfitRail({
 }) {
   const total = look.products.reduce((s, p) => s + p.price, 0);
   return (
-    <aside className="flex min-w-0 flex-col lg:pt-24" aria-label="Outfit pieces">
+    <aside className="outfit-rail flex min-w-0 flex-col lg:pt-24" aria-label="Outfit pieces">
       <div className="flex items-baseline justify-between border-b border-border pb-3">
         <h2 className="text-sm font-medium">{look.name}</h2>
         <span className="text-xs text-muted-foreground">{look.products.length} pieces</span>
@@ -396,7 +400,7 @@ function OutfitRail({
             const on = selected === p.id;
             const size = p.sizes.length === 1 ? p.sizes[0] : sizes[p.id];
             return (
-              <li key={p.id} className={cn("border-b border-border py-3 transition-colors", on && "bg-secondary/70")}>
+              <li key={p.id} id={`piece-${p.id}`} className={cn("border-b border-border py-3 transition-colors", on && "bg-secondary/70")}>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -418,7 +422,7 @@ function OutfitRail({
                     type="button"
                     onClick={() => onAddPiece(p)}
                     aria-label={`Add ${p.name} to bag`}
-                    className="h-8 shrink-0 border border-foreground px-3 text-xs hover:bg-foreground hover:text-primary-foreground"
+                    className="h-11 shrink-0 border border-foreground px-3 text-xs hover:bg-foreground hover:text-primary-foreground"
                   >
                     Add
                   </button>
@@ -432,7 +436,7 @@ function OutfitRail({
                         aria-checked={size === s}
                         onClick={() => onSize(p.id, s)}
                         className={cn(
-                          "h-8 min-w-9 border px-2 text-xs",
+                          "h-11 min-w-11 border px-2 text-xs",
                           size === s ? "border-foreground bg-foreground text-primary-foreground" : "border-border hover:border-foreground",
                         )}
                       >

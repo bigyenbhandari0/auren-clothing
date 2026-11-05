@@ -1,3 +1,5 @@
+import { useCallback, useState } from "react";
+import { BrandIntro } from "@/components/auren/BrandIntro";
 import { createFileRoute } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { BagProvider, useBag } from "@/lib/bag";
@@ -22,9 +24,9 @@ function Header() {
   const bag = useBag();
   return (
     <header className="flex h-14 shrink-0 items-center justify-between px-5 lg:px-10">
-      <span className="text-sm font-bold tracking-[0.2em]">AUREN</span>
+      <a href="/" aria-label="AUREN home" className="text-sm font-bold tracking-[0.2em]">AUREN</a>
       <nav className="flex items-center gap-6 text-xs">
-        <span className="hidden sm:inline">Looks</span>
+        <a href="#looks" className="hidden hover:opacity-60 sm:inline">Looks</a>
         <button onClick={() => bag.setOpen(true)} className="hover:opacity-60" aria-label={`Shopping bag, ${bag.count} items`}>
           Bag ({bag.count})
         </button>
@@ -34,9 +36,12 @@ function Header() {
 }
 
 function Index() {
+  const [entered, setEntered] = useState(false);
+  const enter = useCallback(() => setEntered(true), []);
   return (
     <BagProvider>
-      <div className="flex min-h-svh flex-col overflow-x-hidden bg-background">
+      <BrandIntro onComplete={enter} />
+      <div inert={!entered} aria-hidden={!entered} className="flex min-h-svh flex-col overflow-x-hidden bg-background">
         <Header />
         <LookExplorer />
         <BagModal />

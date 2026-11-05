@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Minus, Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { useBag, subtotal } from "@/lib/bag";
@@ -8,6 +8,10 @@ import { Thumb } from "./LookExplorer";
 export function BagModal() {
   const bag = useBag();
   const [view, setView] = useState<"bag" | "enquiry" | "sent">("bag");
+
+  useEffect(() => {
+    if (!bag.open) setView("bag");
+  }, [bag.open]);
 
   const findProduct = (lookId: string, productId: string) => {
     const look = LOOKS.find((l) => l.id === lookId);
@@ -19,10 +23,10 @@ export function BagModal() {
       open={bag.open}
       onOpenChange={(o) => {
         bag.setOpen(o);
-        if (!o) setTimeout(() => setView("bag"), 200);
+
       }}
     >
-      <DialogContent className="max-h-[88svh] w-[calc(100%-2rem)] max-w-md gap-0 overflow-y-auto border-0 bg-card p-0 shadow-xl [&>button]:hidden">
+      <DialogContent className="max-h-[88svh] w-[calc(100%_-_2rem)] max-w-md gap-0 overflow-y-auto border-0 bg-card p-0 shadow-xl [&>button]:hidden">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <DialogTitle className="text-base font-normal">
             {view === "bag" ? "Your shopping bag" : "Enquiry"}
@@ -114,15 +118,15 @@ export function BagModal() {
             </p>
             <label className="block text-xs">
               Name
-              <input required className="mt-1 h-10 w-full border border-input bg-card px-3 text-sm outline-none focus:border-foreground" />
+              <input name="name" autoComplete="name" required maxLength={100} className="mt-1 h-10 w-full border border-input bg-card px-3 text-sm outline-none focus:border-foreground" />
             </label>
             <label className="block text-xs">
               Email
-              <input required type="email" className="mt-1 h-10 w-full border border-input bg-card px-3 text-sm outline-none focus:border-foreground" />
+              <input name="email" autoComplete="email" required maxLength={254} type="email" className="mt-1 h-10 w-full border border-input bg-card px-3 text-sm outline-none focus:border-foreground" />
             </label>
             <label className="block text-xs">
               Message
-              <textarea rows={3} className="mt-1 w-full border border-input bg-card px-3 py-2 text-sm outline-none focus:border-foreground" />
+              <textarea name="message" maxLength={2000} rows={3} className="mt-1 w-full border border-input bg-card px-3 py-2 text-sm outline-none focus:border-foreground" />
             </label>
             <div className="flex gap-2 pt-2">
               <button type="button" onClick={() => setView("bag")} className="h-12 flex-1 border border-foreground text-sm">
