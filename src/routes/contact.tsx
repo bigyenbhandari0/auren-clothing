@@ -1,3 +1,4 @@
+import { whatsappUrl, INSTAGRAM_URL } from "@/lib/ordering";
 import { copyText } from "@/lib/clipboard";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -28,6 +29,18 @@ function Contact() {
         <div>
           <span className="eyebrow">A little guidance</span>
           <h2>Here to help.</h2>
+          <div className="checkout-help">
+            <a
+              href={whatsappUrl("Hello AUREN, I have a question about the collection.")}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp · +977 9813463360 ↗
+            </a>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
+              Instagram · @bigyen_bhandari ↗
+            </a>
+          </div>
           <p>Explore our sizing and care notes before choosing your pieces.</p>
           <Link to="/care" className="text-link">
             Visit client care <ArrowUpRight size={17} />

@@ -51,9 +51,10 @@ function Care() {
             <span className="eyebrow">03 / The storefront</span>
             <h2>Delivery & returns.</h2>
             <p>
-              AUREN is a portfolio concept, with illustrative products and prices. Checkout,
-              payment, shipping and returns are not active. You can explore pieces, select sizes and
-              build a bag without placing an order.
+              Request cash on delivery from checkout by sending your selection and delivery details
+              to our studio on WhatsApp. We confirm stock, delivery availability, fees, the final
+              amount and any return arrangements before accepting the order. No online payment is
+              taken. Catalogue prices are in EUR; request an agreed NPR total if paying locally.
             </p>
           </section>
           <section id="privacy">
@@ -61,9 +62,11 @@ function Care() {
             <h2>Simply local.</h2>
             <p>
               Your shopping bag is saved in this browser's local storage. The intro uses session
-              storage to remember your visit. Demo enquiry forms do not send or store the
-              information you enter. You can remove the saved bag by clearing this site's browser
-              data.
+              storage to remember your visit. Checkout delivery details are held in page memory and
+              are shared with our studio through WhatsApp only when you send the prepared message.
+              WhatsApp then retains the message under its own policies. There is no website order
+              database. Enquiry forms prepare a note for you to copy and send. You can remove the
+              saved bag by clearing this site's browser data.
             </p>
             <Link to="/contact" className="text-link">
               More questions? Contact the studio ↗

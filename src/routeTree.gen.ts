@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as CareRouteImport } from './routes/care'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as SavedRouteImport } from './routes/saved'
@@ -31,6 +32,11 @@ const AboutRoute = AboutRouteImport.update({
 const CareRoute = CareRouteImport.update({
   id: '/care',
   path: '/care',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/care': typeof CareRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/saved': typeof SavedRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/care': typeof CareRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/saved': typeof SavedRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/care': typeof CareRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/saved': typeof SavedRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/care'
+    | '/checkout'
     | '/contact'
     | '/journal'
     | '/saved'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/care'
+    | '/checkout'
     | '/contact'
     | '/journal'
     | '/saved'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/care'
+    | '/checkout'
     | '/contact'
     | '/journal'
     | '/saved'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   CareRoute: typeof CareRoute
+  CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   JournalRoute: typeof JournalRoute
   SavedRoute: typeof SavedRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/care'
       fullPath: '/care'
       preLoaderRoute: typeof CareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   CareRoute: CareRoute,
+  CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   JournalRoute: JournalRoute,
   SavedRoute: SavedRoute,

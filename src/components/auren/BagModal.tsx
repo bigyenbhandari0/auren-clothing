@@ -104,8 +104,11 @@ export function BagModal() {
                 <span>Subtotal</span>
                 <span data-testid="subtotal">{formatPrice(subtotal(bag.items))}</span>
               </div>
-              <p>Keep your edit. Copy the details into a message or download them for later.</p>
-              <button className="primary-button" onClick={copy}>
+              <p>Ready when you are. Add delivery details and request cash on delivery.</p>
+              <Link to="/checkout" className="primary-button" onClick={() => bag.setOpen(false)}>
+                Continue to checkout <ArrowUpRight size={16} />
+              </Link>
+              <button className="secondary-button" onClick={copy}>
                 Copy selection <Copy size={16} />
               </button>
               <button
@@ -122,7 +125,10 @@ export function BagModal() {
                   {copyStatus}
                 </p>
               )}
-              <span className="bag-order-note">No payment is taken and no order is placed.</span>
+              <span className="bag-order-note">
+                COD requests are sent through WhatsApp. Availability and delivery are confirmed by
+                the studio.
+              </span>
             </div>
           </>
         ) : (
