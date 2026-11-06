@@ -2635,3 +2635,37 @@ em {
     font-size: 7px;
   }
 }
+
+/* Shared daylight and grounded shadows keep the cutouts in one photographic space. */
+.editorial-image,
+.journal-photo {
+  position: relative;
+  isolation: isolate;
+  background: #dfd5c4 url("/images/studio-backdrop.webp") center bottom / cover no-repeat;
+}
+.editorial-image::before,
+.journal-photo::before,
+.about-lineup::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 250, 233, 0.22),
+    transparent 48%,
+    rgba(66, 47, 29, 0.09)
+  );
+}
+.editorial-model,
+.journal-portrait {
+  position: relative;
+  z-index: 1;
+}
+.portrait-cutout svg > image {
+  filter: drop-shadow(2px 3px 2px rgba(45, 36, 26, 0.11));
+}
+.gallery-image:has(.product-model-image) {
+  background: #dfd5c4 url("/images/studio-backdrop.webp") center bottom / cover no-repeat;
+}
