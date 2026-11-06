@@ -2575,3 +2575,63 @@ em {
     width: 210px;
   }
 }
+
+/* The loading intro keeps its original photo previews; the studio uses PNG figures. */
+.about-lineup {
+  position: relative;
+  isolation: isolate;
+  align-items: end;
+  gap: clamp(6px, 2vw, 32px);
+  padding: 64px 5% 48px;
+  background: var(--secondary) url("/images/studio-backdrop.webp") center bottom/cover no-repeat;
+}
+.about-lineup > div {
+  position: relative;
+  z-index: 1;
+  height: clamp(320px, 40vw, 590px);
+  min-width: 0;
+}
+.about-lineup .about-portrait {
+  height: 100%;
+  width: 100%;
+  aspect-ratio: auto;
+}
+.about-lineup-label,
+.about-lineup-caption {
+  position: absolute;
+  z-index: 2;
+  font-size: 9px;
+  line-height: 1.5;
+  letter-spacing: 0.13em;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.about-lineup-label {
+  top: 24px;
+  left: 40px;
+}
+.about-lineup-caption {
+  bottom: 21px;
+  right: 40px;
+}
+@media (max-width: 650px) {
+  .about-lineup {
+    padding: 44px 8px 38px;
+    gap: 0;
+    min-height: 300px;
+    background-position: center bottom;
+  }
+  .about-lineup > div {
+    height: 220px;
+  }
+  .about-lineup-label {
+    left: 20px;
+    top: 17px;
+    font-size: 7px;
+  }
+  .about-lineup-caption {
+    right: 20px;
+    bottom: 14px;
+    font-size: 7px;
+  }
+}

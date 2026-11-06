@@ -20,12 +20,14 @@ function About() {
           </h1>
         </Reveal>
       </section>
-      <section className="about-lineup">
+      <section className="about-lineup" aria-label="The studio collection">
+        <span className="about-lineup-label">STUDIO COLLECTION / 01</span>
         {LOOKS.map((l, i) => (
           <Reveal key={l.id} delay={i * 0.08}>
-            <Portrait image={l.image} alt={l.name} className="about-portrait" />
+            <Portrait image={l.image} alt={l.name} className="about-portrait" framing="figure" />
           </Reveal>
         ))}
+        <span className="about-lineup-caption">FIVE LOOKS / ONE PERSPECTIVE</span>
       </section>
       <section className="story-grid section-space">
         <span className="eyebrow">01 / The idea</span>

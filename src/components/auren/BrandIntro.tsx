@@ -1,4 +1,3 @@
-import { Portrait } from "./Portrait";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
@@ -89,10 +88,15 @@ export function BrandIntro({ onComplete }: { onComplete: () => void }) {
                   animate={{ opacity: 1, y: 0, rotate: 0 }}
                   transition={{ duration: 1.1, delay: reduce ? 0 : 0.55 + i * 0.09, ease }}
                 >
-                  <Portrait
-                    image={look.image}
-                    alt=""
-                    className="h-full w-full mix-blend-multiply"
+                  <div
+                    aria-hidden="true"
+                    className="intro-photo-preview h-full w-full mix-blend-multiply"
+                    style={{
+                      backgroundImage: `url("${look.image.split("#")[0]}")`,
+                      backgroundSize: "500% 100%",
+                      backgroundPosition: `${i * 25}% center`,
+                      backgroundRepeat: "no-repeat",
+                    }}
                   />
                 </motion.div>
               ))}
