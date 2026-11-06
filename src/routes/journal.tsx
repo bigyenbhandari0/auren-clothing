@@ -42,7 +42,12 @@ function Journal() {
         ].map(({ look, title, text, note }, i) => (
           <Reveal key={look.id} className="journal-story">
             <div className="journal-photo">
-              <Portrait image={look.image} alt={look.name} className="journal-portrait" />
+              <Portrait
+                image={look.image}
+                alt={look.name}
+                className="journal-portrait"
+                framing="figure"
+              />
             </div>
             <div>
               <span className="eyebrow">{note} / STUDIO NOTES</span>

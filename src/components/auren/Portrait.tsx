@@ -1,17 +1,39 @@
-import type { CSSProperties } from "react";
+import { MODEL_CUTOUTS } from "@/lib/model-cutouts";
+import { cn } from "@/lib/utils";
 
-/** Render one of five equal portrait columns without duplicating or resampling the source. */
-export function portraitStyle(image: string): CSSProperties {
-  const index = Number(image.split("#")[1] || 0);
-  return {
-    backgroundImage: `url("${image.split("#")[0]}")`,
-    backgroundSize: "500% 100%",
-    backgroundPosition: `${index * 25}% center`,
-    backgroundRepeat: "no-repeat",
-  };
+export function modelForImage(image: string) {
+  const index = Number(image.split("#")[1] ?? 0);
+  return MODEL_CUTOUTS[index] ?? MODEL_CUTOUTS[0]!;
 }
-
-export function Portrait({ image, alt, className }: { image: string; alt: string; className?: string }) {
-  return <div role={alt ? "img" : undefined} aria-label={alt || undefined} aria-hidden={!alt || undefined}
-    className={className} style={portraitStyle(image)} />;
+/** Transparent PNGs, with optional close framing for editorial panels. */
+export function Portrait({
+  image,
+  alt,
+  className,
+  framing = "look",
+}: {
+  image: string;
+  alt: string;
+  className?: string;
+  framing?: "look" | "figure";
+}) {
+  const model = modelForImage(image);
+  const box = framing === "figure" ? model.figureBox : model.lookBox;
+  return (
+    <div
+      role={alt ? "img" : undefined}
+      aria-label={alt || undefined}
+      aria-hidden={!alt || undefined}
+      className={cn(className, "portrait-cutout")}
+    >
+      <svg
+        viewBox={box.join(" ")}
+        preserveAspectRatio="xMidYMid meet"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <image href={model.src} width={model.width} height={model.height} />
+      </svg>
+    </div>
+  );
 }

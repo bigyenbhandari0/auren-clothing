@@ -1,6 +1,6 @@
 import { productImage } from "@/lib/product-media";
 import { Link } from "@tanstack/react-router";
-import { Portrait } from "./Portrait";
+import { Portrait, modelForImage } from "./Portrait";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
@@ -134,7 +134,7 @@ export function LookExplorer({ entered = true }: { entered?: boolean }) {
   // Preload neighbours
   useEffect(() => {
     [active - 1, active + 1].forEach((i) => {
-      if (LOOKS[i]) new Image().src = LOOKS[i].image;
+      if (LOOKS[i]) new Image().src = modelForImage(LOOKS[i].image).src;
     });
   }, [active]);
 

@@ -68,6 +68,7 @@ function Index() {
               image={LOOKS[4]!.image}
               alt="Night Collar studio look"
               className="editorial-model"
+              framing="figure"
             />
             <span>THE EVERYDAY UNIFORM / NO. 05</span>
           </Reveal>
