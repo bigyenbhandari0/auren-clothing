@@ -491,7 +491,7 @@ function OutfitRail({
 }) {
   const total = look.products.reduce((s, p) => s + p.price, 0);
   return (
-    <aside className="outfit-rail flex min-w-0 flex-col lg:pt-24" aria-label="Outfit pieces">
+    <aside className="outfit-rail flex min-w-0 flex-col" aria-label="Outfit pieces">
       <div className="flex items-baseline justify-between border-b border-border pb-3">
         <h2 className="text-sm font-medium">{look.name}</h2>
         <span className="text-xs text-muted-foreground">{look.products.length} pieces</span>
@@ -503,7 +503,7 @@ function OutfitRail({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3, ease: EASE }}
-          className="flex-1"
+          className="outfit-products"
         >
           {look.products.map((p, index) => {
             const on = selected === p.id;
@@ -516,7 +516,7 @@ function OutfitRail({
                 key={p.id}
                 id={`piece-${p.id}`}
                 className={cn(
-                  "border-b border-border py-3 transition-colors",
+                  "outfit-product border-b border-border py-3 transition-colors",
                   on && "bg-secondary/70",
                 )}
               >
@@ -548,7 +548,7 @@ function OutfitRail({
                 </div>
                 {on && p.sizes.length > 1 && (
                   <div
-                    className="mt-3 flex flex-wrap gap-1.5"
+                    className="outfit-sizes mt-3 flex flex-wrap gap-1.5"
                     role="radiogroup"
                     aria-label={`Size for ${p.name}`}
                   >
@@ -582,7 +582,7 @@ function OutfitRail({
           })}
         </motion.ul>
       </AnimatePresence>
-      <div className="sticky bottom-0 mt-4 bg-background pt-2 pb-1">
+      <div className="outfit-footer">
         {error && (
           <p role="alert" className="mb-2 text-xs text-destructive">
             {error}

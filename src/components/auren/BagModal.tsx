@@ -104,22 +104,24 @@ export function BagModal() {
                 <span>Subtotal</span>
                 <span data-testid="subtotal">{formatPrice(subtotal(bag.items))}</span>
               </div>
-              <p>Ready when you are. Add delivery details and request cash on delivery.</p>
+              <p>Delivery details and cash on delivery in the next step.</p>
               <Link to="/checkout" className="primary-button" onClick={() => bag.setOpen(false)}>
                 Continue to checkout <ArrowUpRight size={16} />
               </Link>
-              <button className="secondary-button" onClick={copy}>
-                Copy selection <Copy size={16} />
-              </button>
-              <button
-                className="secondary-button"
-                onClick={() => {
-                  downloadSelection(selectionText(bag.items));
-                  toast("Selection downloaded");
-                }}
-              >
-                Download selection <Download size={16} />
-              </button>
+              <div className="bag-utilities">
+                <button className="bag-utility" onClick={copy}>
+                  Copy details <Copy size={16} />
+                </button>
+                <button
+                  className="bag-utility"
+                  onClick={() => {
+                    downloadSelection(selectionText(bag.items));
+                    toast("Selection downloaded");
+                  }}
+                >
+                  Save details <Download size={16} />
+                </button>
+              </div>
               {copyStatus && (
                 <p className="copy-status" role="status">
                   {copyStatus}
