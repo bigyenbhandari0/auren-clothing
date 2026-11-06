@@ -1,3 +1,4 @@
+import { WardrobeProvider } from "@/lib/wardrobe";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -123,10 +124,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <MotionConfig reducedMotion="user"><BagProvider><Outlet /></BagProvider></MotionConfig> breaks all child routes. */}
+      {/* Shared bag and saved wardrobe persist across routes. */}
       <MotionConfig reducedMotion="user">
         <BagProvider>
-          <Outlet />
+          <WardrobeProvider>
+            <Outlet />
+          </WardrobeProvider>
         </BagProvider>
       </MotionConfig>
     </QueryClientProvider>

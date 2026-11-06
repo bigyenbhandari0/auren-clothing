@@ -1,5 +1,6 @@
+import { productImage } from "@/lib/product-media";
 import { Link } from "@tanstack/react-router";
-import { Portrait, portraitStyle } from "./Portrait";
+import { Portrait } from "./Portrait";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
@@ -35,22 +36,16 @@ export function Thumb({
   product: Product;
   className?: string;
 }) {
-  const { x, y, zoom } = product.thumb;
   return (
-    <div className={cn("relative h-16 w-14 shrink-0 overflow-hidden bg-secondary", className)}>
-      <div
-        aria-hidden
-        className="absolute"
-        style={{
-          ...portraitStyle(image),
-          aspectRatio: PORTRAIT_RATIO,
-          width: `${zoom * 100}%`,
-          left: "50%",
-          top: "50%",
-          transform: `translate(-${x}%, -${y}%)`,
-        }}
-      />
-    </div>
+    <img
+      src={productImage(product.id)}
+      alt={`${product.name} in ${product.color}`}
+      loading="lazy"
+      decoding="async"
+      width="1000"
+      height="1000"
+      className={cn("product-thumb h-16 w-14 shrink-0 object-contain", className)}
+    />
   );
 }
 

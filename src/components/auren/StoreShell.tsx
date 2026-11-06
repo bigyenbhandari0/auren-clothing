@@ -1,7 +1,8 @@
+import { useWardrobe } from "@/lib/wardrobe";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Menu, Search, X } from "lucide-react";
+import { ArrowUpRight, Heart, Menu, Search, X } from "lucide-react";
 import { useBag } from "@/lib/bag";
 import { BagModal } from "./BagModal";
 import { Toaster } from "@/components/ui/sonner";
@@ -36,6 +37,7 @@ export function Reveal({
 }
 export function StoreShell({ children }: { children: ReactNode }) {
   const bag = useBag();
+  const wardrobe = useWardrobe();
   const path = useLocation({ select: (l) => l.pathname });
   const [menu, setMenu] = useState(false);
   useEffect(() => {
@@ -69,6 +71,14 @@ export function StoreShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="header-actions">
+          <Link
+            to="/saved"
+            aria-label={`Saved pieces, ${wardrobe.saved.length} items`}
+            className="saved-header"
+          >
+            <Heart size={17} />
+            <span>{wardrobe.saved.length || ""}</span>
+          </Link>
           <Link to="/shop" aria-label="Search the collection">
             <Search size={17} />
           </Link>

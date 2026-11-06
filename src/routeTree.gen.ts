@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as CareRouteImport } from './routes/care'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as JournalRouteImport } from './routes/journal'
+import { Route as SavedRouteImport } from './routes/saved'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ProductsProductIdRouteImport } from './routes/products/$productId'
 
@@ -42,6 +43,11 @@ const JournalRoute = JournalRouteImport.update({
   path: '/journal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/care': typeof CareRoute
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
+  '/saved': typeof SavedRoute
   '/shop': typeof ShopRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/care': typeof CareRoute
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
+  '/saved': typeof SavedRoute
   '/shop': typeof ShopRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/care': typeof CareRoute
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
+  '/saved': typeof SavedRoute
   '/shop': typeof ShopRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/care'
     | '/contact'
     | '/journal'
+    | '/saved'
     | '/shop'
     | '/products/$productId'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/care'
     | '/contact'
     | '/journal'
+    | '/saved'
     | '/shop'
     | '/products/$productId'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/care'
     | '/contact'
     | '/journal'
+    | '/saved'
     | '/shop'
     | '/products/$productId'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   CareRoute: typeof CareRoute
   ContactRoute: typeof ContactRoute
   JournalRoute: typeof JournalRoute
+  SavedRoute: typeof SavedRoute
   ShopRoute: typeof ShopRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
 }
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JournalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   CareRoute: CareRoute,
   ContactRoute: ContactRoute,
   JournalRoute: JournalRoute,
+  SavedRoute: SavedRoute,
   ShopRoute: ShopRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
 }

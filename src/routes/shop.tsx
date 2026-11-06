@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { cleanShopSearch, filteredProducts } from "@/lib/shop-filters";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
 import { StoreShell, Reveal } from "@/components/auren/StoreShell";
@@ -6,27 +6,38 @@ import { ProductCard } from "@/components/auren/ProductCard";
 import { CATALOG, CATEGORIES } from "@/lib/catalog";
 export const Route = createFileRoute("/shop")({
   head: () => ({ meta: [{ title: "The collection — AUREN" }] }),
+  validateSearch: cleanShopSearch,
   component: Shop,
 });
 function Shop() {
-  const [category, setCategory] = useState("All");
-  const [query, setQuery] = useState("");
-  const [sort, setSort] = useState("edit");
-  const products = useMemo(
-    () =>
-      CATALOG.filter(
-        ({ product: p }) =>
-          (category === "All" || p.category === category) &&
-          `${p.name} ${p.color} ${p.category}`.toLowerCase().includes(query.toLowerCase()),
-      ).sort((a, b) =>
-        sort === "low"
-          ? a.product.price - b.product.price
-          : sort === "high"
-            ? b.product.price - a.product.price
-            : 0,
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const category = search.category ?? "All",
+    query = search.q ?? "",
+    sort = search.sort ?? "edit",
+    size = search.size ?? "";
+  const setCategory = (v: string) =>
+    navigate({
+      search: (prev) => ({ ...prev, category: v, size: undefined }),
+      replace: true,
+      resetScroll: false,
+    });
+  const setQuery = (v: string) =>
+    navigate({
+      search: (prev) => ({ ...prev, q: v || undefined }),
+      replace: true,
+      resetScroll: false,
+    });
+  const setSort = (v: string) =>
+    navigate({ search: (prev) => ({ ...prev, sort: v }), replace: true, resetScroll: false });
+  const products = filteredProducts(search);
+  const sizes = [
+    ...new Set(
+      CATALOG.filter((e) => category === "All" || e.product.category === category).flatMap(
+        (e) => e.product.sizes,
       ),
-    [category, query, sort],
-  );
+    ),
+  ];
   return (
     <StoreShell>
       <section className="page-intro">
@@ -50,6 +61,25 @@ function Shop() {
               </button>
             ))}
           </div>
+          <label className="sort-label">
+            Size{" "}
+            <select
+              aria-label="Filter by size"
+              value={size}
+              onChange={(e) =>
+                navigate({
+                  search: (prev) => ({ ...prev, size: e.target.value || undefined }),
+                  replace: true,
+                  resetScroll: false,
+                })
+              }
+            >
+              <option value="">All sizes</option>
+              {sizes.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
           <label className="sort-label">
             Sort{" "}
             <select
@@ -77,7 +107,9 @@ function Shop() {
               <X size={16} />
             </button>
           )}
-          <span aria-live="polite">{products.length} pieces</span>
+          <span aria-live="polite">
+            {products.length} {products.length === 1 ? "piece" : "pieces"}
+          </span>
         </div>
         {products.length ? (
           <div className="product-grid">
@@ -94,8 +126,7 @@ function Shop() {
             <button
               className="primary-button"
               onClick={() => {
-                setQuery("");
-                setCategory("All");
+                navigate({ search: {}, replace: true, resetScroll: false });
               }}
             >
               Show all pieces

@@ -1,7 +1,19 @@
-import { useState } from "react";
+import { copyText } from "@/lib/clipboard";
+import { useWardrobe } from "@/lib/wardrobe";
+import { productImage } from "@/lib/product-media";
+import { useEffect, useState } from "react";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, Check, Plus, Minus } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Check,
+  Plus,
+  Minus,
+  Heart,
+  Maximize2,
+  Share2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { CATALOG, productDetails } from "@/lib/catalog";
 import { formatPrice } from "@/lib/looks";
@@ -35,9 +47,20 @@ function ProductRoute() {
 function ProductPage({ entry }: { entry: (typeof CATALOG)[number] }) {
   const { product: p, look } = entry;
   const bag = useBag();
+  const wardrobe = useWardrobe();
+  const [quantity, setQuantity] = useState(1);
+  const [zoom, setZoom] = useState(false);
+  useEffect(() => {
+    if (wardrobe.ready) wardrobe.remember(p.id);
+  }, [p.id, wardrobe.ready]);
+  const recent = wardrobe.recent
+    .filter((id) => id !== p.id)
+    .map((id) => CATALOG.find((e) => e.product.id === id))
+    .filter((e): e is (typeof CATALOG)[number] => !!e)
+    .slice(0, 4);
   const [size, setSize] = useState(p.sizes.length === 1 ? p.sizes[0] : "");
   const [error, setError] = useState(false);
-  const [view, setView] = useState("look");
+  const [view, setView] = useState("detail");
   const [guide, setGuide] = useState(false);
   const [added, setAdded] = useState(false);
   const details = productDetails(p.category);
@@ -55,7 +78,7 @@ function ProductPage({ entry }: { entry: (typeof CATALOG)[number] }) {
         color: p.color,
         price: p.price,
         size,
-        qty: 1,
+        qty: quantity,
       },
     ]);
     setAdded(true);
@@ -95,21 +118,42 @@ function ProductPage({ entry }: { entry: (typeof CATALOG)[number] }) {
               )}
             </motion.div>
           </AnimatePresence>
+          <button
+            className="gallery-zoom"
+            onClick={() => setZoom(true)}
+            aria-label={`Enlarge ${p.name} product photograph`}
+          >
+            <Maximize2 size={18} />
+          </button>
           <span className="gallery-label">
             AUREN STUDIO / {view === "detail" ? "THE PIECE" : "THE SILHOUETTE"}
           </span>
           <div className="gallery-controls">
             <button aria-pressed={view === "detail"} onClick={() => setView("detail")}>
-              01 / Detail
+              01 / The piece
             </button>
             <button aria-pressed={view === "look"} onClick={() => setView("look")}>
-              02 / Full look
+              02 / Styled look
             </button>
           </div>
         </div>
         <Reveal className="product-information">
           <span className="eyebrow">Studio collection / {p.category}</span>
-          <h1>{p.name}</h1>
+          <div className="product-title-row">
+            <h1>{p.name}</h1>
+            <button
+              className="product-save"
+              aria-label={`${wardrobe.saved.includes(p.id) ? "Unsave" : "Save"} ${p.name}`}
+              aria-pressed={wardrobe.saved.includes(p.id)}
+              onClick={() => wardrobe.toggle(p.id)}
+            >
+              <Heart
+                size={22}
+                strokeWidth={1.3}
+                fill={wardrobe.saved.includes(p.id) ? "currentColor" : "none"}
+              />
+            </button>
+          </div>
           <div className="product-price">
             {formatPrice(p.price)}
             <span>{p.color}</span>
@@ -143,9 +187,41 @@ function ProductPage({ entry }: { entry: (typeof CATALOG)[number] }) {
               Select a size before adding this piece.
             </p>
           )}
-          <button className="primary-button add-product" onClick={add}>
-            <span>{added ? "Added to your bag" : "Add to bag"}</span>
-            <span>{added ? <Check size={18} /> : <Plus size={18} />}</span>
+          <div className="purchase-controls">
+            <div className="quantity-control" aria-label="Product quantity">
+              <button
+                aria-label="Decrease quantity"
+                disabled={quantity === 1}
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              >
+                <Minus size={13} />
+              </button>
+              <span aria-live="polite">{quantity}</span>
+              <button
+                aria-label="Increase quantity"
+                disabled={quantity === 99}
+                onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+              >
+                <Plus size={13} />
+              </button>
+            </div>
+            <button className="primary-button add-product" onClick={add}>
+              <span>{added ? "Added to your bag" : "Add to bag"}</span>
+              <span>{added ? <Check size={18} /> : <Plus size={18} />}</span>
+            </button>
+          </div>
+          <button
+            className="share-product"
+            onClick={async () => {
+              try {
+                await copyText(window.location.href);
+                toast("Product link copied");
+              } catch {
+                toast("Copy this page address from your browser");
+              }
+            }}
+          >
+            <Share2 size={13} /> Share this piece
           </button>
           {added && (
             <button className="view-bag-link" onClick={() => bag.setOpen(true)}>
@@ -200,6 +276,32 @@ function ProductPage({ entry }: { entry: (typeof CATALOG)[number] }) {
           ))}
         </div>
       </section>
+      {recent.length > 0 && (
+        <section className="section-space recently-viewed">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">Back on your radar</span>
+              <h2>
+                Recently <em>viewed.</em>
+              </h2>
+            </div>
+          </div>
+          <div className="product-grid">
+            {recent.map((e) => (
+              <ProductCard key={e.product.id} entry={e} />
+            ))}
+          </div>
+        </section>
+      )}
+      <Dialog open={zoom} onOpenChange={setZoom}>
+        <DialogContent className="image-lightbox">
+          <DialogTitle className="sr-only">{p.name} — product photograph</DialogTitle>
+          <DialogDescription className="sr-only">
+            Full standalone product image. Pinch to zoom on touch devices.
+          </DialogDescription>
+          <img src={productImage(p.id)} alt={`${p.name} in ${p.color}, full product photograph`} />
+        </DialogContent>
+      </Dialog>
       <Dialog open={guide} onOpenChange={setGuide}>
         <DialogContent>
           <DialogTitle>Find your fit</DialogTitle>

@@ -1,13 +1,17 @@
+import { copyText } from "@/lib/clipboard";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight, Check, Copy, Download } from "lucide-react";
+import { toast } from "sonner";
 import { StoreShell, Reveal } from "@/components/auren/StoreShell";
+import { downloadSelection } from "@/lib/selection";
 export const Route = createFileRoute("/contact")({
   head: () => ({ meta: [{ title: "Contact the studio — AUREN" }] }),
   component: Contact,
 });
 function Contact() {
-  const [sent, setSent] = useState(false);
+  const [message, setMessage] = useState("");
+  const [copied, setCopied] = useState(false);
   return (
     <StoreShell>
       <section className="page-intro">
@@ -17,7 +21,7 @@ function Contact() {
             Start a<br />
             <em>conversation.</em>
           </h1>
-          <p>A question about a piece, a fit, or the studio? Leave a note.</p>
+          <p>A question about a piece, a fit, or the studio? Prepare your note here.</p>
         </Reveal>
       </section>
       <section className="contact-layout section-space">
@@ -29,25 +33,42 @@ function Contact() {
             Visit client care <ArrowUpRight size={17} />
           </Link>
           <p className="contact-note">
-            This is a portfolio storefront. The form demonstrates the enquiry experience; it does
-            not send a message.
+            Copy your completed enquiry to send through your preferred channel, or save a text copy.
+            Your details stay in this browser. Messages are not sent automatically.
           </p>
         </div>
-        {sent ? (
+        {copied ? (
           <div role="status" className="contact-success">
             <Check size={30} />
-            <h2>Your note is ready.</h2>
-            <p>This was a demo submission. No message was sent.</p>
-            <button className="text-link" onClick={() => setSent(false)}>
+            <h2>Your note is copied.</h2>
+            <p>Paste it into your preferred messaging app to send.</p>
+            <button
+              className="text-link"
+              onClick={() => downloadSelection(message, "auren-enquiry.txt")}
+            >
+              Download a copy <Download size={15} />
+            </button>
+            <button className="text-link" onClick={() => setCopied(false)}>
               Write another note ↗
             </button>
           </div>
         ) : (
           <form
             className="contact-form"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              setSent(true);
+              const form = new FormData(e.currentTarget);
+              const text = `AUREN / Studio enquiry\n\nFrom: ${form.get("name")}\nEmail: ${form.get("email")}\nSubject: ${form.get("subject")}\n\n${form.get("message")}`;
+              setMessage(text);
+              try {
+                await copyText(text);
+                setCopied(true);
+              } catch {
+                downloadSelection(text, "auren-enquiry.txt");
+                toast("Enquiry downloaded", {
+                  description: "Clipboard unavailable. Your note was saved as a text file.",
+                });
+              }
             }}
           >
             <label>
@@ -83,9 +104,8 @@ function Contact() {
                 placeholder="Tell us a little more…"
               />
             </label>
-            <p>Demo only — nothing is sent or stored.</p>
             <button className="primary-button" type="submit">
-              Preview enquiry <ArrowUpRight size={18} />
+              Copy enquiry <Copy size={18} />
             </button>
           </form>
         )}
