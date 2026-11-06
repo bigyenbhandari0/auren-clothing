@@ -4,6 +4,42 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/manrope-400.woff") format("woff");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/manrope-500.woff") format("woff");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/manrope-600.woff") format("woff");
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/cormorant-garamond-500.woff") format("woff");
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/cormorant-garamond-500-italic.woff") format("woff");
+}
+
 /*
  * Design system definition.
  *
@@ -52,7 +88,8 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
   --color-overlay: var(--overlay);
-  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: "Manrope", Arial, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -150,7 +187,7 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
   button:not(:disabled),
   a {
@@ -438,7 +475,7 @@
   margin-top: 18px;
 }
 em {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-weight: 400;
 }
 .text-link {
@@ -1709,7 +1746,7 @@ details[open] .details-minus {
   border-radius: 0;
 }
 .quick-dialog h2 {
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 400;
   font-size: 27px;
 }
@@ -1786,7 +1823,7 @@ details[open] .details-minus {
 }
 .bag-heading h2 {
   font-size: 32px;
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 400;
   margin-top: 8px;
 }
@@ -2144,4 +2181,320 @@ details[open] .details-minus {
 
 .product-thumb {
   mix-blend-mode: normal;
+}
+
+/* Stable routing and a single type system across the studio. */
+html {
+  scroll-behavior: auto;
+  scrollbar-gutter: stable;
+}
+body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  line-height: 1.6;
+  font-synthesis: style;
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+#main-content {
+  scroll-margin-top: 100px;
+}
+em {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+.wordmark {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -0.065em;
+  line-height: 1;
+}
+.wordmark span {
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  font-size: 8px;
+}
+.desktop-nav {
+  font-size: 12px;
+  gap: 26px;
+  letter-spacing: -0.025em;
+  font-weight: 500;
+}
+.header-actions {
+  font-size: 12px;
+  font-weight: 500;
+}
+.announcement,
+.eyebrow,
+.showroom-kicker,
+.gallery-label,
+.product-card-index {
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  line-height: 1.7;
+}
+.page-intro h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(52px, 6.6vw, 94px);
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+.page-intro h1 em {
+  letter-spacing: -0.04em;
+}
+.page-intro p {
+  font-size: 14px;
+  line-height: 1.9;
+  max-width: 430px;
+}
+.look-explorer h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(40px, 4.4vw, 64px);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+.look-explorer section > div:first-child p {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.section-heading h2,
+.editorial-copy h2,
+.manifesto h2,
+.story-grid h2,
+.journal-story h2,
+.contact-layout h2,
+.care-layout h2,
+.bag-empty h3,
+.empty-state h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.09;
+}
+.section-heading h2,
+.editorial-copy h2 {
+  font-size: clamp(40px, 4.8vw, 68px);
+}
+.manifesto h2 {
+  font-size: clamp(56px, 7.4vw, 104px);
+}
+.principle-grid h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 34px;
+  letter-spacing: -0.025em;
+}
+.product-information h1 {
+  font-family: var(--font-sans);
+  font-size: clamp(30px, 3.15vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.14;
+}
+.product-description,
+.product-accordions p {
+  font-size: 13px;
+  line-height: 1.95;
+}
+.card-caption h3 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: -0.025em;
+  line-height: 1.6;
+}
+.card-caption > span {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.card-caption p {
+  font-size: 10.5px;
+  line-height: 1.7;
+}
+.primary-button,
+.secondary-button {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+.text-link,
+.size-heading,
+.product-accordions summary {
+  font-size: 12px;
+  font-weight: 500;
+}
+.contact-form label {
+  font-size: 11px;
+  font-weight: 500;
+}
+.contact-form input,
+.contact-form textarea,
+.contact-form select {
+  font-weight: 400;
+  font-size: 14px;
+}
+.product-price {
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.product-price span {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.footer-brand {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.07em;
+}
+.store-footer p {
+  font-size: 12px;
+  line-height: 1.9;
+}
+.bag-heading h2,
+.quick-dialog h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+@media (max-width: 650px) {
+  .wordmark {
+    font-size: 22px;
+  }
+  .header-actions {
+    font-size: 11px;
+    gap: 12px;
+  }
+  .page-intro h1 {
+    font-size: 54px;
+    line-height: 1.04;
+  }
+  .page-intro p {
+    font-size: 13px;
+    line-height: 1.85;
+  }
+  .look-explorer h1 {
+    font-size: 44px;
+  }
+  .look-explorer section > div:first-child p {
+    font-size: 11px;
+  }
+  .section-heading h2 {
+    font-size: 41px;
+  }
+  .editorial-copy h2 {
+    font-size: 50px;
+  }
+  .manifesto h2 {
+    font-size: 62px;
+  }
+  .product-information h1 {
+    font-size: 33px;
+    line-height: 1.16;
+    letter-spacing: -0.05em;
+  }
+  .card-caption h3 {
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  .card-caption > span {
+    font-size: 11px;
+  }
+  .card-caption p {
+    font-size: 9.5px;
+  }
+  .product-description,
+  .product-accordions p {
+    font-size: 12px;
+    line-height: 1.9;
+  }
+  .mobile-nav a {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 32px;
+    letter-spacing: -0.02em;
+  }
+  .mobile-nav sup {
+    font-family: var(--font-sans);
+    font-weight: 500;
+  }
+}
+
+.store-header {
+  view-transition-name: auren-header;
+}
+::view-transition-old(root) {
+  animation: auren-route-out 0.14s linear both;
+}
+::view-transition-new(root) {
+  animation: auren-route-in 0.18s ease-out both;
+}
+::view-transition-group(auren-header) {
+  animation: none;
+}
+::view-transition-old(auren-header) {
+  display: none;
+}
+::view-transition-new(auren-header) {
+  animation: none;
+}
+@keyframes auren-route-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes auren-route-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 150;
+  pointer-events: none;
+  overflow: hidden;
+}
+.route-progress span {
+  display: block;
+  height: 100%;
+  width: 80%;
+  background: var(--studio-olive);
+  transform-origin: left;
+  animation: auren-route-progress 4s cubic-bezier(0.15, 0.7, 0.3, 1) forwards;
+}
+@keyframes auren-route-progress {
+  from {
+    transform: scaleX(0.05);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(auren-header) {
+    animation: none !important;
+  }
+  .route-progress span {
+    animation: none;
+  }
 }

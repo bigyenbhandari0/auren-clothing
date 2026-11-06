@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
-import { StoreShell, Reveal } from "@/components/auren/StoreShell";
+import { Reveal } from "@/components/auren/StoreShell";
 import { Portrait } from "@/components/auren/Portrait";
 import { LOOKS } from "@/lib/looks";
 export const Route = createFileRoute("/journal")({
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/journal")({
 });
 function Journal() {
   return (
-    <StoreShell>
+    <>
       <section className="page-intro">
         <Reveal>
           <span className="eyebrow">Notes from the studio</span>
@@ -60,6 +60,6 @@ function Journal() {
           </Reveal>
         ))}
       </div>
-    </StoreShell>
+    </>
   );
 }

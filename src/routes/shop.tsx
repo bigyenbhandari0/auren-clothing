@@ -1,7 +1,7 @@
 import { cleanShopSearch, filteredProducts } from "@/lib/shop-filters";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
-import { StoreShell, Reveal } from "@/components/auren/StoreShell";
+import { Reveal } from "@/components/auren/StoreShell";
 import { ProductCard } from "@/components/auren/ProductCard";
 import { CATALOG, CATEGORIES } from "@/lib/catalog";
 export const Route = createFileRoute("/shop")({
@@ -39,7 +39,7 @@ function Shop() {
     ),
   ];
   return (
-    <StoreShell>
+    <>
       <section className="page-intro">
         <Reveal>
           <span className="eyebrow">AUREN / Studio collection 01</span>
@@ -134,6 +134,6 @@ function Shop() {
           </div>
         )}
       </section>
-    </StoreShell>
+    </>
   );
 }

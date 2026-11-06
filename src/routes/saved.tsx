@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, ArrowUpRight } from "lucide-react";
-import { StoreShell, Reveal } from "@/components/auren/StoreShell";
+import { Reveal } from "@/components/auren/StoreShell";
 import { ProductCard } from "@/components/auren/ProductCard";
 import { useWardrobe } from "@/lib/wardrobe";
 import { CATALOG } from "@/lib/catalog";
@@ -12,7 +12,7 @@ function Saved() {
   const { saved } = useWardrobe();
   const entries = CATALOG.filter((e) => saved.includes(e.product.id));
   return (
-    <StoreShell>
+    <>
       <section className="page-intro saved-intro">
         <Reveal>
           <span className="eyebrow">A wardrobe, considered</span>
@@ -41,6 +41,6 @@ function Saved() {
           </div>
         )}
       </section>
-    </StoreShell>
+    </>
   );
 }

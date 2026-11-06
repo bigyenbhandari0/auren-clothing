@@ -1,7 +1,17 @@
+import { BrandIntro } from "./BrandIntro";
 import { useWardrobe } from "@/lib/wardrobe";
-import { useEffect, useState, type ReactNode } from "react";
-import { Link, useLocation } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { Link, useLocation, useRouterState } from "@tanstack/react-router";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Heart, Menu, Search, X } from "lucide-react";
 import { useBag } from "@/lib/bag";
 import { BagModal } from "./BagModal";
@@ -23,13 +33,21 @@ export function Reveal({
   className?: string;
   delay?: number;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const [belowFold, setBelowFold] = useState(false);
+  useLayoutEffect(() => {
+    setBelowFold(!reduce && (ref.current?.getBoundingClientRect().top ?? 0) >= window.innerHeight);
+  }, [reduce]);
   return (
     <motion.div
+      ref={ref}
       className={className}
-      initial={{ opacity: 0, y: 28 }}
+      initial={false}
+      animate={belowFold ? { opacity: 0, y: 16 } : { opacity: 1, y: 0 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.12 }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -40,6 +58,16 @@ export function StoreShell({ children }: { children: ReactNode }) {
   const wardrobe = useWardrobe();
   const path = useLocation({ select: (l) => l.pathname });
   const [menu, setMenu] = useState(false);
+  const navigating = useRouterState({ select: (state) => state.isLoading });
+  const [showProgress, setShowProgress] = useState(false);
+  useEffect(() => {
+    if (!navigating) {
+      setShowProgress(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setShowProgress(true), 180);
+    return () => window.clearTimeout(timer);
+  }, [navigating]);
   useEffect(() => {
     setMenu(false);
   }, [path]);
@@ -53,13 +81,18 @@ export function StoreShell({ children }: { children: ReactNode }) {
   }, [menu]);
   return (
     <>
+      {showProgress && (
+        <div className="route-progress" role="status" aria-label="Opening page">
+          <span />
+        </div>
+      )}
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
       <div className="announcement">
         THE STUDIO EDIT / VOLUME 01 <span>Considered clothes. Everyday movement.</span>
       </div>
-      <header className="store-header">
+      <header className="store-header" data-store-header>
         <Link to="/" className="wordmark" aria-label="AUREN home">
           AUREN<span>STUDIO</span>
         </Link>
@@ -122,14 +155,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
         )}
       </AnimatePresence>
       <div id="main-content" tabIndex={-1}>
-        <motion.div
-          key={path}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {children}
-        </motion.div>
+        {children}
       </div>
       <footer className="store-footer">
         <div>
@@ -181,5 +207,25 @@ export function StoreShell({ children }: { children: ReactNode }) {
       <BagModal />
       <Toaster position="bottom-center" />
     </>
+  );
+}
+
+const StudioEntrance = createContext(true);
+export function useStudioEntrance() {
+  return useContext(StudioEntrance);
+}
+/** Keep navigation, footer and dialogs mounted while only the outlet changes. */
+export function StudioLayout({ children }: { children: ReactNode }) {
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const [welcome] = useState(() => pathname === "/");
+  const [entered, setEntered] = useState(() => pathname !== "/");
+  const enter = useCallback(() => setEntered(true), []);
+  return (
+    <StudioEntrance.Provider value={entered}>
+      {welcome && !entered && <BrandIntro onComplete={enter} />}
+      <div inert={!entered} aria-hidden={!entered} data-store-shell>
+        <StoreShell>{children}</StoreShell>
+      </div>
+    </StudioEntrance.Provider>
   );
 }

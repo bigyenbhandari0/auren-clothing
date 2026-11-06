@@ -3,7 +3,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Check, Copy, Download } from "lucide-react";
 import { toast } from "sonner";
-import { StoreShell, Reveal } from "@/components/auren/StoreShell";
+import { Reveal } from "@/components/auren/StoreShell";
 import { downloadSelection } from "@/lib/selection";
 export const Route = createFileRoute("/contact")({
   head: () => ({ meta: [{ title: "Contact the studio — AUREN" }] }),
@@ -13,7 +13,7 @@ function Contact() {
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
   return (
-    <StoreShell>
+    <>
       <section className="page-intro">
         <Reveal>
           <span className="eyebrow">Client care / AUREN Studio</span>
@@ -110,6 +110,6 @@ function Contact() {
           </form>
         )}
       </section>
-    </StoreShell>
+    </>
   );
 }

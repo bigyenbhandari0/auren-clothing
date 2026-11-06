@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { StoreShell, Reveal } from "@/components/auren/StoreShell";
+import { Reveal } from "@/components/auren/StoreShell";
 export const Route = createFileRoute("/care")({
   head: () => ({ meta: [{ title: "Sizing & client care — AUREN" }] }),
   component: Care,
 });
 function Care() {
   return (
-    <StoreShell>
+    <>
       <section className="page-intro">
         <Reveal>
           <span className="eyebrow">AUREN / Client care</span>
@@ -71,6 +71,6 @@ function Care() {
           </section>
         </div>
       </div>
-    </StoreShell>
+    </>
   );
 }

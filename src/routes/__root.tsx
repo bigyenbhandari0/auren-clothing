@@ -1,3 +1,4 @@
+import { StudioLayout } from "@/components/auren/StoreShell";
 import { WardrobeProvider } from "@/lib/wardrobe";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -92,6 +93,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      ...[
+        "manrope-400.woff",
+        "manrope-500.woff",
+        "cormorant-garamond-500.woff",
+        "cormorant-garamond-500-italic.woff",
+      ].map((name) => ({
+        rel: "preload",
+        href: `/fonts/${name}`,
+        as: "font",
+        type: "font/woff",
+        crossOrigin: "anonymous" as const,
+      })),
       {
         rel: "stylesheet",
         href: appCss,
@@ -128,7 +141,9 @@ function RootComponent() {
       <MotionConfig reducedMotion="user">
         <BagProvider>
           <WardrobeProvider>
-            <Outlet />
+            <StudioLayout>
+              <Outlet />
+            </StudioLayout>
           </WardrobeProvider>
         </BagProvider>
       </MotionConfig>

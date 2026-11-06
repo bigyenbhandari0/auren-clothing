@@ -21,7 +21,7 @@ import { useBag } from "@/lib/bag";
 import { Portrait } from "@/components/auren/Portrait";
 import { Thumb } from "@/components/auren/LookExplorer";
 import { ProductCard } from "@/components/auren/ProductCard";
-import { StoreShell, Reveal } from "@/components/auren/StoreShell";
+import { Reveal } from "@/components/auren/StoreShell";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 export const Route = createFileRoute("/products/$productId")({
   loader: ({ params }) => {
@@ -87,7 +87,7 @@ function ProductPage({ entry }: { entry: (typeof CATALOG)[number] }) {
     });
   }
   return (
-    <StoreShell>
+    <>
       <div className="breadcrumb">
         <Link to="/shop">
           <ArrowLeft size={13} /> Collection
@@ -322,6 +322,6 @@ function ProductPage({ entry }: { entry: (typeof CATALOG)[number] }) {
           </Link>
         </DialogContent>
       </Dialog>
-    </StoreShell>
+    </>
   );
 }

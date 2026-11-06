@@ -1,5 +1,5 @@
 import { Portrait } from "./Portrait";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { LOOKS } from "@/lib/looks";
@@ -10,23 +10,28 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function BrandIntro({ onComplete }: { onComplete: () => void }) {
   const reduce = useReducedMotion();
   const [visible, setVisible] = useState(true);
-  useEffect(() => {
+  const [skipped, setSkipped] = useState(false);
+  useLayoutEffect(() => {
     try {
-      if (sessionStorage.getItem("auren-intro-seen-v2")) setVisible(false);
+      if (sessionStorage.getItem("auren-intro-seen-v2")) {
+        setSkipped(true);
+        onComplete();
+        return;
+      }
     } catch {
       /* Session storage is optional. */
     }
     const timer = window.setTimeout(() => setVisible(false), reduce ? 350 : 3300);
     return () => clearTimeout(timer);
-  }, [reduce]);
+  }, [reduce, onComplete]);
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || skipped) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previous;
     };
-  }, [visible]);
+  }, [visible, skipped]);
   const finish = () => {
     try {
       sessionStorage.setItem("auren-intro-seen-v2", "1");
@@ -35,6 +40,7 @@ export function BrandIntro({ onComplete }: { onComplete: () => void }) {
     }
     onComplete();
   };
+  if (skipped) return null;
   return (
     <AnimatePresence onExitComplete={finish}>
       {visible && (
